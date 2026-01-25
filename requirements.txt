@@ -1,0 +1,4 @@
+kivy
+uiautomator2
+adbutils
+pillow
