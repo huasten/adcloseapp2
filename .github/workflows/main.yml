@@ -1,0 +1,57 @@
+name: Build Android APK
+
+on:
+  push: # 当有代码推送时自动运行
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 安装 Buildozer 依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            python3-pip \
+            autoconf \
+            libtool \
+            pkg-config \
+            zlib1g-dev \
+            libncurses5-dev \
+            libncursesw5-dev \
+            libtinfo5 \
+            cmake \
+            libffi-dev \
+            libssl-dev
+
+      - name: 安装 Buildozer
+        run: |
+          pip3 install --upgrade pip wheel setuptools virtualenv
+          pip3 install buildozer cython==0.29.33
+
+      - name: 用 Buildozer 构建 APK
+        run: |
+          buildozer -v android debug
+        env:
+          # 设置一些环境变量，避免交互式提示
+          DEBIAN_FRONTEND: noninteractive
+          # 跳过某些确认
+          ACCEPT_ALL_LICENSES: y
+
+      - name: 上传生成的 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: adcloser-apk
+          path: ./bin/*.apk
