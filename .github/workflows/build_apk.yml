@@ -1,0 +1,70 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # 允许在网页手动点击运行
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90 # 首次构建需要下载大量文件，设置长超时时间
+
+    steps:
+    # 1. 获取你的代码
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    # 3. 安装 Linux 系统必要的编译工具和库
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          git \
+          zip \
+          unzip \
+          openjdk-17-jdk \
+          python3-pip \
+          autoconf \
+          libtool \
+          pkg-config \
+          zlib1g-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libtinfo5 \
+          cmake \
+          libffi-dev \
+          libssl-dev \
+          ninja-build
+
+    # 4. 安装 Python 端的打包工具 Buildozer
+    - name: Install Buildozer and Cython
+      run: |
+        pip install --upgrade pip wheel setuptools virtualenv
+        pip install buildozer==1.4.0
+        pip install cython==0.29.36
+
+    # 5. 执行 Buildozer 打包命令（核心步骤）
+    - name: Build with Buildozer
+      run: |
+        # 设置环境变量，自动接受所有许可证，防止卡住
+        export DEBIAN_FRONTEND=noninteractive
+        yes | buildozer -v android debug
+      env:
+        # 这个环境变量对于自动下载 Android SDK 至关重要
+        ACCEPT_ALL_LICENSES: 1
+
+    # 6. 上传生成的 APK 文件（仅当成功时）
+    - name: Upload APK artifact
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: AdCloseApp-APK
+        path: bin/*.apk
+        retention-days: 5
