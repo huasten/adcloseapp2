@@ -1,0 +1,13 @@
+name: Test Workflow
+
+on: [workflow_dispatch] # 仅手动触发
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step 1 - Checkout
+        uses: actions/checkout@v4
+
+      - name: Step 2 - Echo
+        run: echo "Hello, World! YML file is OK."
