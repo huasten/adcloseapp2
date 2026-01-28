@@ -1,0 +1,24 @@
+name: Build APK
+on: [push, workflow_dispatch]  # push代码时触发，也支持手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 👇 使用专为Kivy定制的一键打包Action
+      - name: Build APK
+        uses: mike42/kivy-github-actions@main
+        with:
+          # 你的应用配置（按需修改）
+          package-name: org.adcloser.app
+          app-name: 广告关闭器
+          version: 1.0
+          # 指定你的依赖库（必须和你的代码匹配）
+          requirements: python3,kivy,uiautomator2,adbutils,pillow
+          # 以下为可选高级设置，目前可以忽略
+          # presplitted-apks: false
+          # orientation: portrait
+          # icon: path/to/icon.png
