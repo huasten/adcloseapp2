@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu 20.04 
     timeout-minutes: 90 # 首次构建需要下载大量文件，设置长超时时间
 
     steps:
@@ -53,9 +53,10 @@ jobs:
     # 5. 执行 Buildozer 打包命令（核心步骤）
     - name: Build with Buildozer
       run: |
-        # 设置环境变量，自动接受所有许可证，防止卡住
+        # 设置非交互式环境并自动接受所有许可
         export DEBIAN_FRONTEND=noninteractive
-        yes | buildozer -v android debug
+        export ACCEPT_ALL_LICENSES=1
+        buildozer -v android debug
       env:
         # 这个环境变量对于自动下载 Android SDK 至关重要
         ACCEPT_ALL_LICENSES: 1
